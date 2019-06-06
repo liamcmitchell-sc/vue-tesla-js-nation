@@ -3,16 +3,18 @@
     <h1>{{ title }}</h1>
 
     <!-- TeslaCarComponent -->
-    <tesla-car wheels="wheels"
-               speed="[speed.value]" />
+    <tesla-car :wheels="this.wheels.value" :speed="this.speed.value" />
     <!-- End TeslaCarComponent -->
 
     <!-- TeslaStatsComponent -->
     <div class="tesla-stats">
       <ul>
-        <li v-for="stat of stats">
-          <div :class="'tesla-stats-icon tesla-stats-icon--'+stat.model"></div>
-          <p>{{ stat.miles }}
+        <li :key="stat.model" v-for="stat of stats">
+          <div
+            :class="'tesla-stats-icon tesla-stats-icon--' + stat.model"
+          ></div>
+          <p>
+            {{ stat.miles }}
             <span>MI</span>
           </p>
         </li>
@@ -21,30 +23,34 @@
     <!-- EndTeslaStatsComponent -->
 
     <div class="tesla-controls cf">
-
       <!-- TeslaCounterComponent for speed -->
       <div class="tesla-counter">
         <p class="tesla-counter__title">Speed</p>
         <div class="tesla-counter__container cf">
-          <div class="tesla-counter__item"
-               tabindex="0"
-               (blur)="onBlurSpeed($event)"
-               (keydown)="onKeyUpSpeed($event)"
-               (focus)="onFocusSpeed($event)">
+          <div
+            class="tesla-counter__item"
+            tabindex="0"
+            @blur="onBlurSpeed($event)"
+            @keydown="onKeyUpSpeed($event)"
+            @focus="onFocusSpeed($event)"
+          >
             <p class="tesla-counter__number">
-              {{speed.value}}
+              {{ speed.value }}
               <span>kmh</span>
             </p>
-            <div class="tesla-counter__controls"
-                 tabindex="-1">
-              <button tabindex="-1"
-                      type="button"
-                      @click="incrementSpeed"
-                      disabled="speed.value === speed.max"></button>
-              <button tabindex="-1"
-                      type="button"
-                      @click="decrementSpeed"
-                      disabled="speed.value === speed.min"></button>
+            <div class="tesla-counter__controls" tabindex="-1">
+              <button
+                tabindex="-1"
+                type="button"
+                @click="incrementSpeed"
+                :disabled="speed.value === speed.max"
+              ></button>
+              <button
+                tabindex="-1"
+                type="button"
+                @click="decrementSpeed"
+                :disabled="speed.value === speed.min"
+              ></button>
             </div>
           </div>
         </div>
@@ -52,30 +58,34 @@
       <!-- End TeslaCounterComponent for speed -->
 
       <div class="tesla-climate cf">
-
         <!-- TeslaCounterComponent for outside temperature -->
         <div class="tesla-counter">
           <p class="tesla-counter__title">Outside Temperature</p>
           <div class="tesla-counter__container cf">
-            <div class="tesla-counter__item"
-                 tabindex="0"
-                 @blur="onBlurTemperature()"
-                 @keydown="onKeyUpTemperature()"
-                 @focus="onFocusTemperature()">
+            <div
+              class="tesla-counter__item"
+              tabindex="0"
+              @blur="onBlurTemperature()"
+              @keydown="onKeyUpTemperature()"
+              @focus="onFocusTemperature()"
+            >
               <p class="tesla-counter__number">
-                temperature.value
+                {{ temperature.value }}
                 <span>°</span>
               </p>
-              <div class="tesla-counter__controls"
-                   tabindex="-1">
-                <button tabindex="-1"
-                        type="button"
-                        @onClick="incrementTemperature"
-                        :disabled="temperature.value === temperature.max"></button>
-                <button tabindex="-1"
-                        type="button"
-                        @onClick="decrementTemperature"
-                        :disabled="temperature.value === temperature.min"></button>
+              <div class="tesla-counter__controls" tabindex="-1">
+                <button
+                  tabindex="-1"
+                  type="button"
+                  @click="incrementTemperature"
+                  :disabled="temperature.value === temperature.max"
+                ></button>
+                <button
+                  tabindex="-1"
+                  type="button"
+                  @click="decrementTemperature"
+                  :disabled="temperature.value === temperature.min"
+                ></button>
               </div>
             </div>
           </div>
@@ -85,51 +95,72 @@
         <!-- TeslaClimateComponent -->
         <div>
           <!-- the class tesla-heat must be added only if the limit is achieved -->
-          <label class="tesla-climate__item tesla-heat"
-                 :class="{'tesla-climate__item--active': climate.value, 'tesla-climate__item--focused': climate.focused === climate.value}">
-            <p class="heat">{{ (limitHeat ? 'ac' : 'heat') }} {{ climate.value ? 'on' : 'off' }}</p>
+          <label
+            class="tesla-climate__item"
+            :class="{
+              'tesla-climate__item--active': climate.value,
+              'tesla-climate__item--focused': climate.focused === climate.value,
+              'tesla-heat': !limitHeat,
+            }"
+          >
+            <p class="heat">
+              {{ limitHeat ? 'ac' : 'heat' }} {{ climate.value ? 'on' : 'off' }}
+            </p>
             <i class="tesla-climate__icon"></i>
-            <input type="checkbox"
-                   name="climate"
-                   :checked="true"
-                   @click="changeClimate()"
-                   @blur="onBlurClimate()"
-                   @focus="onFocusClimate()">
+            <input
+              type="checkbox"
+              name="climate"
+              :checked="true"
+              @click="changeClimate()"
+              @blur="onBlurClimate()"
+              @focus="onFocusClimate()"
+            />
           </label>
         </div>
         <!-- End TeslaClimateComponent -->
-
       </div>
 
       <!-- TeslaWheelsComponent -->
       <div class="tesla-wheels">
         <p class="tesla-wheels__title">Wheels</p>
         <div class="tesla-wheels__container cf">
-          <label *ngFor="size of wheels.sizes"
-                 :key="size"
-                 :class="[{'tesla-wheels__item--active' : (wheels.value === size), 'tesla-wheels__item--focused': (wheels.focused === size),'tesla-wheels__item': true}, `tesla-wheels__item--${size}`]">
-            <input type="radio"
-                   name="wheelsize"
-                   :value="size"
-                   @blur="onBlurWheels()"
-                   @click="changeWheelSize(size)"
-                   @focus="onFocusWheels(size)"
-                   :checked="wheels.value === size">
-            <p>
-              {size}"
-            </p>
+          <label
+            v-for="size of wheels.sizes"
+            :key="size"
+            :class="[
+              {
+                'tesla-wheels__item--active': wheels.value === size,
+                'tesla-wheels__item--focused': wheels.focused === size,
+                'tesla-wheels__item': true,
+              },
+              `tesla-wheels__item--${size}`,
+            ]"
+          >
+            <input
+              type="radio"
+              name="wheelsize"
+              :value="size"
+              @blur="onBlurWheels()"
+              @click="changeWheelSize(size)"
+              @focus="onFocusWheels(size)"
+              :checked="wheels.value === size"
+            />
+            <p>{{ size }}"</p>
           </label>
         </div>
       </div>
       <!-- End TeslaWheelsComponent -->
-
     </div>
     <div class="tesla-battery__notice">
       <p>
-        The actual amount of range that you experience will vary based on your particular use conditions. See how particular use conditions may affect your range in our simulation model.
+        The actual amount of range that you experience will vary based on your
+        particular use conditions. See how particular use conditions may affect
+        your range in our simulation model.
       </p>
       <p>
-        Vehicle range may vary depending on the vehicle configuration, battery age and condition, driving style and operating, environmental and climate conditions.
+        Vehicle range may vary depending on the vehicle configuration, battery
+        age and condition, driving style and operating, environmental and
+        climate conditions.
       </p>
     </div>
   </form>
@@ -192,6 +223,7 @@ export default {
     },
     limitHeat() {
       // return boolean that is true if the temperature of the tesla is above 10 degrees
+      return this.temperature.value > 10;
     },
   },
   methods: {
@@ -199,7 +231,7 @@ export default {
       this.climate.value = !this.climate.value;
     },
     changeWheelSize(size) {
-      this.tesla.wheels = size;
+      this.wheels.value = size;
     },
     onBlurWheels() {
       this.wheels.focused = null;
@@ -208,12 +240,16 @@ export default {
       this.wheels.focused = size;
     },
     onBlurClimate() {
-      this.tesla.climate.focused = false;
+      this.climate.focused = false;
     },
     onFocusClimate() {
-      this.tesla.climate.focused = true;
+      this.climate.focused = true;
     },
-    incrementTemperature() {},
+    incrementTemperature() {
+      if (this.temperature.value < this.temperature.max) {
+        this.temperature.value = this.temperature.value + this.temperature.step;
+      }
+    },
     decrementTemperature() {
       if (this.temperature.value > this.temperature.min) {
         this.temperature.value = this.temperature.value - this.temperature.step;
@@ -246,7 +282,11 @@ export default {
         this.speed.value = this.speed.value + this.speed.step;
       }
     },
-    decrementSpeed() {},
+    decrementSpeed() {
+      if (this.speed.value > this.speed.min) {
+        this.speed.value = this.speed.value - this.speed.step;
+      }
+    },
     onFocusSpeed(event) {
       this.speed.focused = false;
       event.preventDefault();
