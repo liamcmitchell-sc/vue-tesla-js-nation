@@ -11,7 +11,9 @@
       <ul>
         <li :key="stat.model" v-for="stat of stats">
           <div
-            :class="'tesla-stats-icon tesla-stats-icon--' + stat.model"
+            :class="
+              'tesla-stats-icon tesla-stats-icon--' + stat.model.toLowerCase()
+            "
           ></div>
           <p>
             {{ stat.miles }}
