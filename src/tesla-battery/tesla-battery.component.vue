@@ -7,10 +7,26 @@
     <tesla-stats :stats="stats" />
 
     <div class="tesla-controls cf">
-      <tesla-counter title="Speed" :value="speed" />
+      <tesla-counter
+        title="Speed"
+        unit="mi/h"
+        :value="speed.value"
+        :max="speed.max"
+        :min="speed.min"
+        :step="speed.step"
+        @change="onSpeedChange"
+      />
 
       <div class="tesla-climate cf">
-        <tesla-counter title="Outside Temperature" :value="temperature" />
+        <tesla-counter
+          title="Outside Temperature"
+          unit="°"
+          :value="temperature.value"
+          :max="temperature.max"
+          :min="temperature.min"
+          :step="temperature.step"
+          @change="onTemperatureChange"
+        />
         <tesla-climate :climate="climate" :limitHeat="limitHeat" />
       </div>
 
@@ -38,7 +54,7 @@ import TeslaCounter from './components/tesla-counter.component';
 import TeslaClimate from './components/tesla-climate.component';
 import TeslaWheels from './components/tesla-wheels.component';
 
-import teslaService from './tesla-battery.service';
+import teslaBatteryService from './tesla-battery.service';
 
 export default {
   name: 'tesla-battery',
@@ -49,13 +65,10 @@ export default {
     TeslaClimate,
     TeslaWheels,
   },
-  created() {
-    this.metrics = teslaService.getModelData();
-  },
   data() {
     return {
       title: 'Ranger Per Charge',
-      models: ['60', '60D', '75', '75D', '90D', 'P100D'],
+      models: [/*'60', '60D',*/ '75', '75D', '90D', 'P100D'],
       wheels: {
         sizes: [19, 21],
         value: 19,
@@ -74,14 +87,17 @@ export default {
       },
       speed: {
         value: 55,
-        focused: false,
         min: 45,
         max: 70,
         step: 5,
       },
-      metrics: [],
+      metrics: {},
     };
   },
+  created() {
+    this.metrics = teslaBatteryService.getModelData();
+  },
+
   computed: {
     stats() {
       return this.models.map(model => {
@@ -96,6 +112,14 @@ export default {
     },
     limitHeat() {
       return this.temperature.value > 10;
+    },
+  },
+  methods: {
+    onSpeedChange(value) {
+      this.speed.value = value;
+    },
+    onTemperatureChange(value) {
+      this.temperature.value = value;
     },
   },
 };

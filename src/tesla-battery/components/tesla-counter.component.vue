@@ -10,21 +10,21 @@
         @focus="onFocus"
       >
         <p class="tesla-counter__number">
-          {{ value.value }}
-          <span>°</span>
+          {{ value }}
+          <span>{{ unit }}</span>
         </p>
         <div class="tesla-counter__controls" tabindex="-1">
           <button
             tabindex="-1"
             type="button"
             @click="increment"
-            :disabled="value.value === value.max"
+            :disabled="value === max"
           ></button>
           <button
             tabindex="-1"
             type="button"
             @click="decrement"
-            :disabled="value.value === value.min"
+            :disabled="value === min"
           ></button>
         </div>
       </div>
@@ -40,29 +40,50 @@ export default {
       type: String,
       required: true,
     },
+    unit: {
+      type: String,
+      required: true,
+    },
     value: {
-      type: Object,
+      type: Number,
+      required: true,
+    },
+    max: {
+      type: Number,
+      required: true,
+    },
+    min: {
+      type: Number,
+      required: true,
+    },
+    step: {
+      type: Number,
       required: true,
     },
   },
+  data: function() {
+    return {
+      focused: false,
+    };
+  },
   methods: {
     increment() {
-      if (this.value.value < this.value.max) {
-        this.value.value = this.value.value + this.value.step;
+      if (this.value < this.max) {
+        this.$emit('change', this.value + this.step);
       }
     },
     decrement() {
-      if (this.value.value > this.value.min) {
-        this.value.value = this.value.value - this.value.step;
+      if (this.value > this.min) {
+        this.$emit('change', this.value - this.step);
       }
     },
     onFocus(event) {
-      this.value.focused = false;
+      this.focused = false;
       event.preventDefault();
       event.stopPropagation();
     },
     onBlur(event) {
-      this.value.focused = true;
+      this.focused = true;
       event.preventDefault();
       event.stopPropagation();
     },
